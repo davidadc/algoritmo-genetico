@@ -1,58 +1,54 @@
-def calculate_min_risk():
-    f = open('covar.txt', 'r')
-    lines = f.readlines()
-    f.close()
+class Fitness:
+    def __init__(self):
+        self.covar = self.load_covar()
+        self.performances = self.load_performances()
 
-    covar = []
-    for raw_line in lines:
-        split_line = raw_line.strip().split(',')
-        nums_ls = [float(x) for x in split_line]
-        covar.append(nums_ls)
+    def load_covar(self):
+        f = open('covar.txt', 'r')
+        lines = f.readlines()
+        f.close()
 
-    f = open('input-population.txt')
-    population = f.readlines()
-    f.close()
+        covar = []
+        for raw_line in lines:
+            split_line = raw_line.strip().split(',')
+            nums_ls = [float(x) for x in split_line]
+            covar.append(nums_ls)
 
-    min_risk = []
-    for chromosome in population:
-        summation = 0
-        gens = chromosome.split(',')
+        return covar
 
-        for index_i, gen_i in enumerate(gens):
-            for index_j, gen_j in enumerate(gens):
-                summation += (float(gen_i) * float(gen_j) * covar[index_i][index_j])
+    def load_performances(self):
+        f = open('performance.txt', 'r')
+        lines = f.readlines()
+        f.close()
 
-        min_risk.append(summation)
+        def delete_linebreak(s):
+            return float(s[:len(s) - 1])
 
-    return min_risk
+        performances = list(map(delete_linebreak, lines))
 
+        return performances
 
-def calculate_max_performance():
-    f = open('performance.txt', 'r')
-    lines = f.readlines()
-    f.close()
+    def calculate_min_risk(self, chromosome):
+        min_risk = 0
+        genes = chromosome.split(',')
 
-    def delete_linebreak(s):
-        return float(s[:len(s) - 1])
+        for index_i, gen_i in enumerate(genes):
+            for index_j, gen_j in enumerate(genes):
+                min_risk += (float(gen_i) * float(gen_j) * self.covar[index_i][index_j])
 
-    performances = list(map(delete_linebreak, lines))
+        return min_risk
 
-    f = open('input-population.txt')
-    population = f.readlines()
-    f.close()
+    def calculate_max_performance(self, chromosome):
+        genes = chromosome.split(',')
+        max_performance = 0
 
-    max_performance = []
-    for chromosome in population:
-        summation = 0
+        for index, gen in enumerate(genes):
+            max_performance += (float(gen) * self.performances[int(index)])
 
-        for index, gen in enumerate(chromosome.split(',')):
-            summation += (float(gen) * performances[int(index)])
+        return max_performance
 
-        max_performance.append(summation)
+    def calculate_fitness(self, chromosome):
+        p = self.calculate_max_performance(chromosome=chromosome)
+        r = self.calculate_min_risk(chromosome=chromosome)
 
-    return max_performance
-
-
-def fitness():
-    pass
-
+        return p / r
