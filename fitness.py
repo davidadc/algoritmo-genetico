@@ -1,4 +1,4 @@
-def min_risk():
+def calculate_min_risk():
     f = open('covar.txt', 'r')
     lines = f.readlines()
     f.close()
@@ -13,7 +13,7 @@ def min_risk():
     population = f.readlines()
     f.close()
 
-    riskP = []
+    min_risk = []
     for chromosome in population:
         summation = 0
         gens = chromosome.split(',')
@@ -22,9 +22,9 @@ def min_risk():
             for index_j, gen_j in enumerate(gens):
                 summation += (float(gen_i) * float(gen_j) * covar[index_i][index_j])
 
-        riskP.append(summation)
+        min_risk.append(summation)
 
-    return riskP
+    return min_risk
 
 
 def calculate_max_performance():
