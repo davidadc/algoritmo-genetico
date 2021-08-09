@@ -1,3 +1,6 @@
+from utils.files import delete_linebreak
+
+
 class Fitness:
     def __init__(self):
         self.covar = self.load_covar()
@@ -7,6 +10,8 @@ class Fitness:
         f = open('covar.txt', 'r')
         lines = f.readlines()
         f.close()
+
+        lines = list(map(delete_linebreak, lines))
 
         covar = []
         for raw_line in lines:
@@ -21,10 +26,10 @@ class Fitness:
         lines = f.readlines()
         f.close()
 
-        def delete_linebreak(s):
+        def delete_linebreaks(s):
             return float(s[:len(s) - 1])
 
-        performances = list(map(delete_linebreak, lines))
+        performances = list(map(delete_linebreaks, lines))
 
         return performances
 

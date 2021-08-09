@@ -2,3 +2,4 @@ venv
 input-population.txt
 .idea
 __pycache__
+.test
