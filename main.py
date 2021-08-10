@@ -6,4 +6,4 @@ if __name__ == '__main__':
     population = Population()
     fitness = Fitness()
 
-    print(population.selection())
+    population.genetic_algorithm()
