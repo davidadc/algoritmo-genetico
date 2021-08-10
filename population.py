@@ -1,4 +1,4 @@
-from random import sample
+from random import randint, sample
 
 # Fitness
 from fitness import Fitness
@@ -15,6 +15,13 @@ class Population:
         self.main_population = self.load_population()
         self.population_fitness = self.calculate_fitness()
         self.population_length = len(self.main_population)
+
+        # Tournament selection
+        # TODO: change range to 6 for real tests
+        self.tournament_selection = 4
+
+        # TODO:
+        self.cross_pairs = 3
 
         # Percentages
         self.cross_probability = 0.80
@@ -40,14 +47,14 @@ class Population:
     def genetic_algorithm(self):
         best_chromosomes, indexes = self.selection()
 
-        if decision(self.cross_probability):
-            self.cross(best_chromosomes, indexes)
+        # if decision(self.cross_probability):
+        print(self.cross(best_chromosomes))
 
-        if decision(self.mutation_probability):
-            self.mutation()
+        # if decision(self.mutation_probability):
+        #     self.mutation()
 
-        print(best_chromosomes)
-        print(indexes)
+        # print(best_chromosomes)
+        # print(indexes)
 
     def selection(self):
         # TODO: change to 0.15 for real tests with 220 input-population
@@ -58,8 +65,7 @@ class Population:
         selected_population = []
         remaining_population = [*self.population_fitness]
 
-        # TODO: change range to 6 for real tests
-        for _ in range(4):
+        while len(remaining_population) > qty:
             sample_pop = sample(remaining_population, qty)
             selected_population = [*selected_population, *sample_pop]
             tournament.append(sample_pop)
@@ -68,6 +74,7 @@ class Population:
 
         best_chromosomes = []
         indexes = []
+
         for x in tournament:
             best_fitness = max(x)
             best_fitness_position = self.population_fitness.index(best_fitness)
@@ -76,11 +83,37 @@ class Population:
 
         return best_chromosomes, indexes
 
-    def cross(self, chromosomes, indexes):
-        pass
+    def cross(self, chromosomes):
+        remaining_chromosomes = [*chromosomes]
+
+        crossed_chromosomes = []
+
+        while len(remaining_chromosomes) > 0:
+            sample_pop = sample(remaining_chromosomes, 2)
+            remaining_chromosomes = list(set(remaining_chromosomes) - set(sample_pop))
+
+            cross_position = randint(1, 9)
+
+            split_a = sample_pop[0].split(',')
+            split_b = sample_pop[1].split(',')
+
+            splitted_a = split_a[0:cross_position]
+            splitted_b = split_a[cross_position:]
+
+            splitted_c = split_b[0:cross_position]
+            splitted_d = split_b[cross_position:]
+
+            crossed_chromosomes = [
+                *crossed_chromosomes,
+                ','.join([','.join([*splitted_a]), ','.join([*splitted_d])]),
+                ','.join([','.join([*splitted_c]), ','.join([*splitted_b])])
+            ]
+
+        return crossed_chromosomes
 
     def mutation(self):
         pass
 
     def substitution(self, new_chromosome, index):
-        self.population[index] = new_chromosome
+        # self.population[index] = new_chromosome
+        pass
