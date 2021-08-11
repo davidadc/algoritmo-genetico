@@ -1,4 +1,4 @@
-from random import randint, sample
+from random import randint, random, sample
 
 # Fitness
 from fitness import Fitness
@@ -13,19 +13,12 @@ class Population:
         self.fitness = Fitness()
 
         self.main_population = self.load_population()
-        self.population_fitness = self.calculate_fitness()
+        self.population_fitness = self.calculate_fitness(population=self.main_population)
         self.population_length = len(self.main_population)
-
-        # Tournament selection
-        # TODO: change range to 6 for real tests
-        self.tournament_selection = 4
-
-        # TODO:
-        self.cross_pairs = 3
 
         # Percentages
         self.cross_probability = 0.80
-        self.mutation_probability = 0.01
+        self.mutation_probability = 0.05
 
     def load_population(self):
         file = open('input-population.txt')
@@ -36,29 +29,60 @@ class Population:
 
         return p
 
-    def calculate_fitness(self):
+    def calculate_fitness(self, population):
         calc = []
-        for chromosome in self.main_population:
+
+        for chromosome in population:
             f = self.fitness.calculate_fitness(chromosome=chromosome)
             calc.append(f)
 
         return calc
 
+    def normalize_chromosome(self, chromosome):
+        sum_chromosome = sum(chromosome)
+        normalized_chromosome = [float(gen / sum_chromosome) for gen in chromosome]
+
+        return normalized_chromosome
+
     def genetic_algorithm(self):
+
+        # First Step: Selection
         best_chromosomes, indexes = self.selection()
 
+        # TODO: Activate
+        # Second Step: Cross
         # if decision(self.cross_probability):
-        print(self.cross(best_chromosomes))
+        best_chromosomes = self.cross(chromosomes=best_chromosomes)
 
-        # if decision(self.mutation_probability):
-        #     self.mutation()
+        # Third Step: Mutation
+        for index, crossed_chromosomes in enumerate(best_chromosomes):
+            # TODO: Activate
+            # if decision(self.mutation_probability):
+            best_chromosomes[index] = self.mutation(crossed_chromosomes=crossed_chromosomes)
 
-        # print(best_chromosomes)
-        # print(indexes)
+        # for index, chromosome in enumerate(best_chromosomes):
+        #     s = [str(i) for i in chromosome]
+        #     best_chromosomes[index] = ','.join(s)
+
+        # # Calculate Fitness for new Chromosomes
+        # best_chromosomes_fitness = self.calculate_fitness(population=best_chromosomes)
+        #
+        # # Retrieve better new fitness
+        # best_cf = max(best_chromosomes_fitness)
+        # best_cf_index = best_chromosomes_fitness.index(best_cf)
+        #
+        # # Retrieve worst chromosome in population
+        # worst_chromosome_index = self.population_fitness.index(min(self.population_fitness))
+
+        # Fourth Step: Substitution
+        for index, crossed_chromosomes in enumerate(best_chromosomes):
+            self.substitution(
+                crossed_chromosomes=crossed_chromosomes
+            )
 
     def selection(self):
-        # TODO: change to 0.15 for real tests with 220 input-population
-        percentage = 0.20
+        # TODO: change to 0.15 for 220 input-population - 0.20 test for 10
+        percentage = 0.15
         qty = int(self.population_length * percentage)
 
         tournament = []
@@ -103,17 +127,40 @@ class Population:
             splitted_c = split_b[0:cross_position]
             splitted_d = split_b[cross_position:]
 
+            crossed_chromosome_a = [*splitted_a, *splitted_d]
+            crossed_chromosome_b = [*splitted_b, *splitted_c]
+
+            crossed_chromosome_a = [float(gen) for gen in crossed_chromosome_a]
+            crossed_chromosome_b = [float(gen) for gen in crossed_chromosome_b]
+
+            crossed_chromosome_a = self.normalize_chromosome(chromosome=crossed_chromosome_a)
+            crossed_chromosome_b = self.normalize_chromosome(chromosome=crossed_chromosome_b)
+
             crossed_chromosomes = [
                 *crossed_chromosomes,
-                ','.join([','.join([*splitted_a]), ','.join([*splitted_d])]),
-                ','.join([','.join([*splitted_c]), ','.join([*splitted_b])])
+                [crossed_chromosome_a, crossed_chromosome_b]
             ]
 
         return crossed_chromosomes
 
-    def mutation(self):
-        pass
+    def mutation(self, crossed_chromosomes):
+        for index, chromosome in enumerate(crossed_chromosomes):
+            random_gen = randint(0, 10)
+            new_gen = random()
 
-    def substitution(self, new_chromosome, index):
-        # self.population[index] = new_chromosome
-        pass
+            chromosome[random_gen] = new_gen
+
+            crossed_chromosomes[index] = self.normalize_chromosome(chromosome=chromosome)
+
+        return crossed_chromosomes
+
+    def substitution(self, crossed_chromosomes):
+        population = [','.join(list(map(str, chromosome))) for chromosome in crossed_chromosomes]
+
+        calc_fitness = self.calculate_fitness(population=population)
+
+        better_chromosome_index = calc_fitness.index(max(calc_fitness))
+        worst_chromosome_in_population = self.population_fitness.index(min(self.population_fitness))
+
+        self.main_population[worst_chromosome_in_population] = population[better_chromosome_index]
+        self.population_fitness[worst_chromosome_in_population] = calc_fitness[better_chromosome_index]

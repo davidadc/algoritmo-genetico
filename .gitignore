@@ -3,3 +3,5 @@ input-population.txt
 .idea
 __pycache__
 .test
+output-fitness.txt
+output-population.txt
