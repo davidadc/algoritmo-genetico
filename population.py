@@ -60,20 +60,6 @@ class Population:
             # if decision(self.mutation_probability):
             best_chromosomes[index] = self.mutation(crossed_chromosomes=crossed_chromosomes)
 
-        # for index, chromosome in enumerate(best_chromosomes):
-        #     s = [str(i) for i in chromosome]
-        #     best_chromosomes[index] = ','.join(s)
-
-        # # Calculate Fitness for new Chromosomes
-        # best_chromosomes_fitness = self.calculate_fitness(population=best_chromosomes)
-        #
-        # # Retrieve better new fitness
-        # best_cf = max(best_chromosomes_fitness)
-        # best_cf_index = best_chromosomes_fitness.index(best_cf)
-        #
-        # # Retrieve worst chromosome in population
-        # worst_chromosome_index = self.population_fitness.index(min(self.population_fitness))
-
         # Fourth Step: Substitution
         for index, crossed_chromosomes in enumerate(best_chromosomes):
             self.substitution(
