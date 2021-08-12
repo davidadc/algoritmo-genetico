@@ -18,7 +18,7 @@ class Population:
 
         # Percentages
         self.cross_probability = 0.80
-        self.mutation_probability = 0.05
+        self.mutation_probability = 0.025
 
     def load_population(self):
         file = open('input-population.txt')
@@ -47,85 +47,78 @@ class Population:
     def genetic_algorithm(self):
 
         # First Step: Selection
-        best_chromosomes, indexes = self.selection()
+        selected_chromosomes = self.selection()
 
-        # TODO: Activate
         # Second Step: Cross
-        # if decision(self.cross_probability):
-        best_chromosomes = self.cross(chromosomes=best_chromosomes)
+        for index, paired_chromosomes in enumerate(selected_chromosomes):
+            if decision(self.cross_probability):
+                selected_chromosomes[index] = self.cross(chromosomes=paired_chromosomes)
 
         # Third Step: Mutation
-        for index, crossed_chromosomes in enumerate(best_chromosomes):
-            # TODO: Activate
-            # if decision(self.mutation_probability):
-            best_chromosomes[index] = self.mutation(crossed_chromosomes=crossed_chromosomes)
+        for index, paired_chromosomes in enumerate(selected_chromosomes):
+            if decision(self.mutation_probability):
+                selected_chromosomes[index] = self.mutation(crossed_chromosomes=paired_chromosomes)
 
         # Fourth Step: Substitution
-        for index, crossed_chromosomes in enumerate(best_chromosomes):
+        for index, paired_chromosomes in enumerate(selected_chromosomes):
             self.substitution(
-                crossed_chromosomes=crossed_chromosomes
+                crossed_chromosomes=paired_chromosomes
             )
 
     def selection(self):
-        # TODO: change to 0.15 for 220 input-population - 0.20 test for 10
-        percentage = 0.15
+        # TODO: change to 0.05 for 220 input-population - 0.25 test for 10
+        percentage = 0.05
         qty = int(self.population_length * percentage)
 
         tournament = []
         selected_population = []
         remaining_population = [*self.population_fitness]
 
-        while len(remaining_population) > qty:
+        while len(remaining_population) >= qty:
             sample_pop = sample(remaining_population, qty)
             selected_population = [*selected_population, *sample_pop]
             tournament.append(sample_pop)
 
-            remaining_population = list(set(remaining_population) - set(selected_population))
+            for element in sample_pop:
+                remaining_population.remove(element)
 
         best_chromosomes = []
-        indexes = []
 
         for x in tournament:
             best_fitness = max(x)
             best_fitness_position = self.population_fitness.index(best_fitness)
-            indexes.append(best_fitness_position)
             best_chromosomes.append(self.main_population[best_fitness_position])
 
-        return best_chromosomes, indexes
+        paired_chromosomes = []
+        while len(best_chromosomes) > 0:
+            sample_pop = sample(best_chromosomes, 2)
+
+            parsed_chromosome_a = [float(gen) for gen in sample_pop[0].split(',')]
+            parsed_chromosome_b = [float(gen) for gen in sample_pop[1].split(',')]
+
+            paired_chromosomes = [*paired_chromosomes, [parsed_chromosome_a, parsed_chromosome_b]]
+
+            for element in sample_pop:
+                best_chromosomes.remove(element)
+
+        return paired_chromosomes
 
     def cross(self, chromosomes):
-        remaining_chromosomes = [*chromosomes]
+        cross_position = randint(1, 9)
 
-        crossed_chromosomes = []
+        split_a = chromosomes[0][0:cross_position]
+        split_b = chromosomes[0][cross_position:]
 
-        while len(remaining_chromosomes) > 0:
-            sample_pop = sample(remaining_chromosomes, 2)
-            remaining_chromosomes = list(set(remaining_chromosomes) - set(sample_pop))
+        split_c = chromosomes[1][0:cross_position]
+        split_d = chromosomes[1][cross_position:]
 
-            cross_position = randint(1, 9)
+        crossed_chromosome_a = [*split_a, *split_d]
+        crossed_chromosome_b = [*split_c, *split_b]
 
-            split_a = sample_pop[0].split(',')
-            split_b = sample_pop[1].split(',')
+        crossed_chromosome_a = self.normalize_chromosome(chromosome=crossed_chromosome_a)
+        crossed_chromosome_b = self.normalize_chromosome(chromosome=crossed_chromosome_b)
 
-            splitted_a = split_a[0:cross_position]
-            splitted_b = split_a[cross_position:]
-
-            splitted_c = split_b[0:cross_position]
-            splitted_d = split_b[cross_position:]
-
-            crossed_chromosome_a = [*splitted_a, *splitted_d]
-            crossed_chromosome_b = [*splitted_b, *splitted_c]
-
-            crossed_chromosome_a = [float(gen) for gen in crossed_chromosome_a]
-            crossed_chromosome_b = [float(gen) for gen in crossed_chromosome_b]
-
-            crossed_chromosome_a = self.normalize_chromosome(chromosome=crossed_chromosome_a)
-            crossed_chromosome_b = self.normalize_chromosome(chromosome=crossed_chromosome_b)
-
-            crossed_chromosomes = [
-                *crossed_chromosomes,
-                [crossed_chromosome_a, crossed_chromosome_b]
-            ]
+        crossed_chromosomes = [crossed_chromosome_a, crossed_chromosome_b]
 
         return crossed_chromosomes
 
