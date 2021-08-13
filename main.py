@@ -1,28 +1,25 @@
 from population import Population
 
+# Utils
+from utils.population import generate_random_population
+from utils.files import generate_csv
+
 
 if __name__ == '__main__':
-    population = Population()
 
-    for _ in range(30):
-        population.genetic_algorithm()
+    results = []
 
-    f = open('output-population.txt', 'w')
+    for i in range(30):
+        population = Population()
+        generate_random_population(220)
 
-    for i in range(0, population.population_length):
-        f.write(population.main_population[i])
+        for _ in range(100):
+            population.genetic_algorithm()
 
-        if i != population.population_length - 1:
-            f.write('\n')
+        best_chromosome, fitness, performance, risk = population.get_best_chromosome()
 
-    f.close()
+        results.append(
+            [i + 1, *best_chromosome, fitness, performance, risk]
+        )
 
-    f = open('output-fitness.txt', 'w')
-
-    for i in range(0, population.population_length):
-        f.write(str(population.population_fitness[i]))
-
-        if i != population.population_length - 1:
-            f.write('\n')
-
-    f.close()
+    generate_csv(results)
