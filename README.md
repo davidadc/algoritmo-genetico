@@ -4,9 +4,12 @@
 
 Código hecho en Python que contiene la lógica de un algoritmo genético.
 
-Tiene un script que permite generar la población automáticamente. Para ejecutar este se debe realizar el siguiente comando.
+Se genera una población de 220 cromosomas. Posteriormente ejecuta los siguientes pasos a la hora de realizar el algoritmo:
 
-``python utils/generate-input-population.py <cantidad-de-población-a-crear>``
+1. Selección por torneo (Separando en grupos de 10% de la población total).
+2. Cruce (con un 80% de probabilidades de realizarse).
+3. Mutación (con un 2.5% de probabilidades de realizarse).
+4. Sustitución por evolución continua.
 
 ### Integrantes:
 
