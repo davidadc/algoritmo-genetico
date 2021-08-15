@@ -10,8 +10,8 @@ if __name__ == '__main__':
     results = []
 
     for i in range(30):
-        population = Population()
         generate_random_population(220)
+        population = Population()
 
         for _ in range(100):
             population.genetic_algorithm()
