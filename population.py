@@ -71,12 +71,10 @@ class Population:
         qty = int(self.population_length * self.selection_percentage)
 
         tournament = []
-        selected_population = []
         remaining_population = [*self.population_fitness]
 
         while len(remaining_population) >= qty:
             sample_pop = sample(remaining_population, qty)
-            selected_population = [*selected_population, *sample_pop]
             tournament.append(sample_pop)
 
             for element in sample_pop:
@@ -106,10 +104,10 @@ class Population:
     def cross(self, chromosomes):
         cross_position = randint(1, 9)
 
-        split_a = chromosomes[0][0:cross_position]
+        split_a = chromosomes[0][:cross_position]
         split_b = chromosomes[0][cross_position:]
 
-        split_c = chromosomes[1][0:cross_position]
+        split_c = chromosomes[1][:cross_position]
         split_d = chromosomes[1][cross_position:]
 
         crossed_chromosome_a = [*split_a, *split_d]
